@@ -40,7 +40,7 @@ coeff = nlinfit(angles_rad,Z,ff,para_0);
 figure, polarplot(angles_rad,Z,'o','MarkerFaceColor','b','LineWidth',1)
 hold on
 polarplot(0:0.1:2*pi,ff(coeff,0:0.1:2*pi),'r','LineWidth',1.2);
-title('Nano-bridge, 45° excitation')
+title('Nano-bridge, 45Â° excitation')
 
 %% Antenna L3C1 2400 uC/cm^2
 % 45
@@ -79,7 +79,7 @@ coeff = nlinfit(angles_rad,Z,ff,para_0);
 figure, polarplot(angles_rad,Z,'o','MarkerFaceColor','b','LineWidth',1)
 hold on
 polarplot(0:0.1:2*pi,ff(coeff,0:0.1:2*pi),'r','LineWidth',1.2);
-title('Nano-gap, 45° excitation')
+title('Nano-gap, 45Â° excitation')
 
 
 
