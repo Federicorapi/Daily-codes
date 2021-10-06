@@ -113,7 +113,7 @@ title('Total intensity map')
 
 %% Altro scan
 %% Opening of h5 file
-name = 'ML_on_SIO2_map_exp1p5_pow225µW_grating300_centralwvl800_temp30K_001.h5';
+name = 'ML_on_SIO2_map_exp1p5_pow225ÂµW_grating300_centralwvl800_temp30K_001.h5';
 data = h5read(name,'/Data');
 wvl = h5read(name,'/WL');
 xy = h5read(name,'/Consigne');
