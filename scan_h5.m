@@ -2,26 +2,26 @@ clear all
 clc
 close all
 %% Opening of h5 file
-name = '####';      %% Insert file name
+name = 'LASER_ML_on_SiO2_20�W_0.004exposure_spectro632_excitation_632nm_AVEC_WINDOW_FOCALISE_001.h5';      %% Insert file name
 data = h5read(name,'/Data');
 wvl = h5read(name,'/WL');
 ev=1240/wvl;
 xy = h5read(name,'/Consigne');
 pixel=length(wvl);
 scansizex=81;       %% Insert number of steps along x
-scansizey=21;       %% Insert number of steps along y
+scansizey=51;       %% Insert number of steps along y
 
 %% Creation of one spectrum to see the background
 sum_of_spectra = zeros(pixel,1);
 
-for ii = 1:scansizex
+for ii = 1:length(xy(1,:))
     sum_of_spectra = sum_of_spectra+data(:,ii);
 end
 figure(1),plot(wvl,sum_of_spectra);
 title('Sum of all the spectra')
 xlabel('Wavelength, nm')
 ylabel('A.U.')
-subtitle('')
+
 
 %% Making the map
 intensities = ones(scansizex,scansizey);
@@ -35,18 +35,29 @@ for y = 1:scansizey
     end
     r = r+1;
 end
-
-%% Muon killing
 figure(4)
 imagesc(intensities)
-treshold=10000;
+%% Muon killing
+
+treshold=3000;
 for ss=1:scansizey
-    for kk=2:scansizex-1
+    for kk=1:scansizex
         if max(intensities(kk,ss))>treshold
-            intensities(kk,ss)=mean([intensities(kk-1,ss),intensities(kk+1,ss)]);
+            if kk ~= 1 && kk~= scansizex && ss ~= 1 && ss ~= scansizey
+            intensities(kk,ss)=mean([intensities(kk-1,ss-1),intensities(kk,ss-1),intensities(kk+1,ss-1),intensities(kk-1,ss),intensities(kk+1,ss), ...
+                intensities(kk-1,ss+1),intensities(kk,ss+1),intensities(kk+1,ss+1)]);
+            elseif ss ~= 1 && ss ~= scansizey && (kk == 1 || kk == scansizex)
+              intensities(kk,ss) = mean([intensities(kk,ss-1),intensities(kk,ss+1)]);
+            elseif kk ~= 1 && kk ~= scansizex && (ss == 1 || ss == scansizey)
+              intensities(kk,ss) = mean([intensities(kk-1,ss),intensities(kk+1,ss)]);
+            end
         end
     end
 end
+
+figure(5)
+imagesc(intensities)
+title('Map with muons killed')
 
 
 %% Normalisation
@@ -60,7 +71,7 @@ end
 %% Plot of a slice
 
 tranche=zeros(1,scansizex);
-yline =3;
+yline =5;
 xline =0;
 
 for jj=1:scansizex
@@ -91,29 +102,29 @@ colonney=0.7*2*2.64*3*linspace(1,scansizey,scansizey);
 %tranchecut=tranche(1:20);
 %lignexcut=lignex(1:20);
 
-figure(5)
+figure(6)
 % plot(colonney,tranche)
  plot(lignex,tranche)
 %plot(lignexcut,tranchecut)
 
 %c*(1/2)*(1+erf((x-a)/(sqrt(2)*b)))
 
-load('fitnowindow.mat')
-load('fitwithwindow.mat')
-figure()
-plot(fitnowindow)
-title('Fit no window, on ML')
-xticks('auto')
-yticks('auto')
-xlabel('Microns')
-ylabel('Microns')
-figure()
-plot(fitwithwindow,'b')
-title('Fit with window, on ML')
-xticks('auto')
-yticks('auto')
-xlabel('Microns')
-ylabel('Microns')
+% load('fitnowindow.mat')
+% load('fitwithwindow.mat')
+% figure()
+% plot(fitnowindow)
+% title('Fit no window, on ML')
+% xticks('auto')
+% yticks('auto')
+% xlabel('Microns')
+% ylabel('Microns')
+% figure()
+% plot(fitwithwindow,'b')
+% title('Fit with window, on ML')
+% xticks('auto')
+% yticks('auto')
+% xlabel('Microns')
+% ylabel('Microns')
 
 %% Rescaling of the axis
 
@@ -121,19 +132,19 @@ xy(1,:)=2*2.64*3*xy(1,:);
 xy(2,:)=0.7*2*2.64*3*xy(2,:);
 
 % Plot of the max intensity map
-figure(6),
+figure(7),
 imagesc(transpose(intensities))
 %imagesc(xy(1,:),xy(2,:),transpose(intensities))
 axis xy
 axis equal
 xticks('auto')
 yticks('auto')
-xlabel('Microns')
-ylabel('Microns')
+xlabel('pixels')
+ylabel('pixels')
 
 colorbar
-subtitle('###')
-title('Max intensity map')
+title('Laser scan of ML on SiO2. 20 \muW, 0.004 seconds. Olympus objective')
+ylim([1 scansizey-1])
 
 %% Region of interest on the map
 %% Select the pixel interval to create the ROI
