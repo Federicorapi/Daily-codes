@@ -78,7 +78,7 @@ end
 
 xlabel('Bragg depth, nm')
 ylabel('Refractive index')
-xticks
+
 
 
 
