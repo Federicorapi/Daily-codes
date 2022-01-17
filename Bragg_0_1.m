@@ -4,32 +4,28 @@ clc
 
 
 %%
-na = 1; nb = 1.52; nH = 2.6; nL = 1.4585; 
+na = 1; nb = 1.52; nH = 2.34; nL = 1.477; 
 n_cavity = na;% refractive indexes
-lambda = 800; %nm
-LH = lambda/(4*nH);
-LL = lambda/(4*nL);
-L_cavity = lambda/(2*na);   % Air cavity 
-
-
-Thicknesses = [1.27054000000000;1.74507000000000;1.03998000000000;1.21835000000000;...
-    1.24900000000000;1.25126000000000;0.686350000000000;0.0852426000000000;1.04015000000000;...
-    0.925410000000000;0.708470000000000;0.795390000000000;1.00279000000000;1.03490000000000;...
-    0.996630000000000;1.00698000000000;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1;1];
+lambda_thickness = 1386; %nm
+LH = lambda_thickness/(4*nH);
+LL = lambda_thickness/(4*nL);
+L_cavity = lambda_thickness/(2*na);   % Air cavity 
 
 
 
-Materials = [-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2;-5;-2];
+
+Thicknesses = [];  %Array containing the thickness of each layer
+Materials = [];  % Array containing the material of each layer
 
 for i = 1 : size(Materials,1)
     
     if Materials(i) == -5
-        Materials(i) = 2.6;
+        Materials(i) = nH;
         Thicknesses(i) = Thicknesses(i)*LH;
 
         
     elseif Materials(i) == -2
-        Materials(i) = 1.4585;
+        Materials(i) = nL;
         Thicknesses(i) = Thicknesses(i)*LL;
     end
 end
@@ -43,21 +39,70 @@ N = size(Materials,2);
 n = [na, Materials , n_cavity, flip(Materials), na]; 
 L = [Thicknesses, L_cavity, flip(Thicknesses)]; 
 
-la = linspace(500,1500,501);
+% n = [na, Materials,nb]; 
+% L = [Thicknesses]; 
+
+la = linspace(1150, 1650,5001);
 k_vector = 2*pi./la;
 
 
-%% Plot Reflectivity
-Gla = 100*abs(Multidiel_Federico(n,L.*n(2:end-1),k_vector)).^2;
-figure(2), plot(la,Gla);
-xlabel('Wavelength, nm')
-ylabel('Reflectivity, A.U.')
+%% Plot Reflectivity over all angles
+maximum_angle = 90;
+angles = 0:1:maximum_angle;
+plots_TE = zeros(size(angles,2),size(la,2));
+row = 1;
+for theta = 0:maximum_angle
+Gla = abs(Multidiel_Federico(n,L.*n(2:end-1),k_vector,theta,'te')).^2;
+plots_TE(row,:) = Gla;
+row = row +1;
+end
 
+[X,Y] = meshgrid(angles, la);
+figure, surf(X,Y, abs(1-plots_TE)','edgecolor','none');
+view (2);
+colorbar
+
+xlabel('Degrees')
+ylabel('Wavelength, nm')
+zlabel('Reflectivity, A.U.')
+title('TE mode')
+
+
+% new_colors = zeros(size(angles,2),3);
+% for kk =1 : size(angles,2)
+%     newcolors(kk,:) = [kk/size(angles,2) 0 1-kk/size(angles,2)];
+% end
+% colororder(newcolors) 
+
+
+
+plots_TM = zeros(size(angles,2),size(la,2));
+row = 1;
+
+for theta = 0:maximum_angle
+Gla = abs(Multidiel_Federico(n,L.*n(2:end-1),k_vector,theta,'tm')).^2;
+plots_TM(row,:) = Gla;
+
+row = row+1;
+end
+figure, surf(X,Y, abs(1-plots_TM)','edgecolor','none');
+view (2);
+colorbar
+
+
+xlabel('Degrees')
+ylabel('Wavelength, nm')
+zlabel('Reflectivity, A.U.')
+title('TM mode')
+% for kk =1 : size(angles,2)
+%     newcolors(kk,:) = [kk/size(angles,2) 0 1-kk/size(angles,2)];
+% end
+% colororder(newcolors)
 %% Plot Refractive indexes profile
 N_steps = size(L,2);
 indice = 2;
 start = 0;
-figure(3),
+figure(2),
 plot(zeros(1,100),linspace(n(1),n(2),100),'b')
 hold on
 for i = 1:N_steps
@@ -82,6 +127,26 @@ ylabel('Refractive index')
 
 
 
+
+%% Plot Reflectivity over one angle
+
+
+
+ 
+Gla = abs(Multidiel_Federico(n,L.*n(2:end-1),k_vector,0,'te')).^2;
+figure, plot(la,1-Gla)
+xlabel('Wavelength, nm')
+ylabel('Trabsmission, A.U.')
+title('TE mode')
+
+
+
+
+Gla = abs(Multidiel_Federico(n,L.*n(2:end-1),k_vector,0,'tm')).^2;
+figure,plot(la,1-Gla)
+xlabel('Wavelength, nm')
+ylabel('Transmission, A.U.')
+title('TM mode')
 
 
 
