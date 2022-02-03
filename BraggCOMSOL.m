@@ -74,6 +74,7 @@ thicknesses = thicknesses';
 thicknesses = flip(thicknesses,2);
 materials = materials';
 materials = flip(materials,2);
+
 %% Import COMSOL class
 nom=['/home/rapisarda/Documents/PhD/COMSOL/','prova_bojh.mph'];
 import com.comsol.model.*
@@ -109,25 +110,24 @@ model.study('std1').create('eig', 'Eigenfrequency');
 model.study('std1').feature('eig').activate('emw', true);
 model.study('std1').feature('eig').set('shift', '2.6e14'); %%%% Per scegliere la frequenza attorno a cui cercare
 model.study('std1').feature('eig').set('neigs', 5); %%% Per scegliere quante aufofrequenze cercare
+
 % for r = 1:size(h_corrected,2)
 % model.param.set('hCavity',num2str(h_corrected(r)));
-% model.param.set('rHSQ',num2str(radius(r)))
+% model.param.set('rHSQ',num2str(radius(r)));
 %% Add global parameters 
-model.param.set('rHSQ','2499');
+model.param.set('rHSQ','500');
+model.param.set('hCavity','lambda/(2*n_cavity)');
 model.param.set('lambda','910');
 model.param.set('n_cavity','1.41');
 model.param.set('n_air','1');
 model.param.set('nH','2.1306');
 model.param.set('nL','1.4585');
 model.param.set('ray_Bragg','3500');
-model.param.set('hCavity','lambda/(2*n_cavity)');
 model.param.set('h_PML','1000');
 
-
-
-%% Tantala sequence
 model.geom('Bragg').scaleUnitValue(true);
 model.geom('Bragg').lengthUnit('nm');
+%% Tantala sequence
 tag = strcat('Tantala',num2str(1));
 Tantala = model.geom('Bragg').feature.create(tag, 'Rectangle');
 Tantala.set('size', [mphevaluate(model,'ray_Bragg'),thicknesses(1)]);
@@ -154,19 +154,24 @@ end
 %% Cavity sequence
 tag = 'Air';
 Air = model.geom('Bragg').feature.create(tag, 'Rectangle');
-Air.set('size', [mphevaluate(model,'ray_Bragg'),mphevaluate(model,'hCavity')]);
-Air.set('pos',[0 mphevaluate(model,'hCavity')*(-1)]);
+Air.set('size', {'ray_Bragg' 'hCavity'});
+stringa = num2str(-1*mphevaluate(model,'hCavity'));
+Air.set('pos',{'0' stringa});
 
 tag = 'HSQ';
 HSQ = model.geom('Bragg').feature.create(tag, 'Rectangle');
 HSQ.set('size', {'rHSQ' 'hCavity'});
-HSQ.set('pos',[0 mphevaluate(model,'hCavity')*(-1)]);
+stringa = num2str(-1*mphevaluate(model,'hCavity'));
+HSQ.set('pos',{'0' stringa});
 
 %% PML sequence
 tag = strcat('PML_SIDE',num2str(2));
 PML_SIDE = model.geom('Bragg').feature.create(tag, 'Rectangle');
-PML_SIDE.set('size', [1000,mphevaluate(model,'hCavity')+2*sum(thicknesses)]);
-PML_SIDE.set('pos',[mphevaluate(model,'ray_Bragg')-1000 (sum(thicknesses))*(-1)-mphevaluate(model,'hCavity')]);
+stringaaa = num2str(mphevaluate(model,'hCavity')+2*sum(thicknesses));
+PML_SIDE.set('size', {'1000' stringaaa});
+stringaa = num2str((sum(thicknesses))*(-1)-mphevaluate(model,'hCavity'));
+stringa = num2str(mphevaluate(model,'ray_Bragg')-1000);
+PML_SIDE.set('pos',{stringa stringaa});
 
 tag = strcat('PML_TOP',num2str(2));
 PML_TOP = model.geom('Bragg').feature.create(tag, 'Rectangle');
@@ -176,7 +181,8 @@ PML_TOP.set('pos',[0 sum(thicknesses)]);
 tag = strcat('PML_BOTTOM',num2str(2));
 PML_BOTTOM = model.geom('Bragg').feature.create(tag, 'Rectangle');
 PML_BOTTOM.set('size', [mphevaluate(model,'ray_Bragg'),1000]);
-PML_BOTTOM.set('pos',[0 sum(thicknesses)*(-1)+mphevaluate(model,'hCavity')*(-1)-mphevaluate(model,'h_PML')]);
+stringa = num2str(sum(thicknesses)*(-1)+mphevaluate(model,'hCavity')*(-1)-mphevaluate(model,'h_PML'));
+PML_BOTTOM.set('pos',{'0' stringa});
 
 %% Bottom Bragg
 
@@ -185,7 +191,7 @@ model.geom('Bragg').feature('copy1').selection('input').set({'Tantala1' 'Tantala
     'Tantala11' 'Tantala13' 'Tantala15' 'Tantala17' 'Tantala19' 'Tantala21' 'Tantala23' 'Tantala25'...
     'Tantala27' 'Tantala29' 'Silica2' 'Silica4' 'Silica6' 'Silica8' 'Silica10' 'Silica12' 'Silica14' 'Silica16'...
     'Silica18' 'Silica20' 'Silica22' 'Silica24' 'Silica26' 'Silica28' 'Silica30'});
-model.geom('Bragg').feature('copy1').set('disply', sum(thicknesses)*(-1)+mphevaluate(model,'hCavity')*(-1) );
+model.geom('Bragg').feature('copy1').set('disply', sum(thicknesses)*(-1)+mphevaluate(model,'hCavity')*(-1));
 
 
 %% Rotate the Bottom Bragg to have a symmetric cavity
@@ -193,12 +199,15 @@ model.geom('Bragg').create('rot1', 'Rotate');
 model.geom('Bragg').feature('rot1').selection('input').set({'copy1'});
 model.geom('Bragg').feature('rot1').set('rot', '180');
 model.geom('Bragg').feature('rot1').set('pos', {num2str((mphevaluate(model,'ray_Bragg'))/2) num2str(sum(thicknesses)/2*(-1)+mphevaluate(model,'hCavity')*(-1))});
-
 model.geom('Bragg').run;
 %% Insert PML
 model.coordSystem.create('pml1', 'Bragg', 'PML');
 model.coordSystem('pml1').selection.set([1 63 65:125]); 
 model.coordSystem('pml1').set('ScalingType', 'Cylindrical');
+
+
+
+
 %% Create Materials
 % Air
 model.material.create('mat1', 'Common', 'comp1');
