@@ -2,7 +2,7 @@
 Codes I write on the go during the PhD at ENS - Paris
 
 Thz folder contains the following scripts:
-* '''BraggCOMSOL.m''' - To launch a COMSOL simulation of an optical cavity directly from MatLAB. 
+* ''' BraggCOMSOL.m''' - To launch a COMSOL simulation of an optical cavity directly from MatLAB. 
 * '''Bragg_0_1.m '''- To simulate on MatLAB an optical cavity made by Bragg Mirrors and to follow a given mode at different incidence angles
 * '''Effective_index.m''' - Starting from a given Bragg mirror, the script otpimises each layer thickness in order to minimise the drift in frequency of a given mode
 * '''Reflectivity_plots.m''' - Computes reflection and transmission of a given material for different thicknesses
