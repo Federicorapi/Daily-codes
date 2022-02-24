@@ -66,7 +66,6 @@ for i = 1:5
 end
 title('Absorbance')
 xlabel('Thickness, nm')
-
 legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
 
 
@@ -98,7 +97,6 @@ for i = 1:5
 end
 title('Reflection')
 xlabel('Thickness, nm')
-
 legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
 
 % Transmission
@@ -124,7 +122,6 @@ for i = 1:5
 end
 title('Transmission')
 xlabel('Thickness, nm')
-
 legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
 
 
@@ -135,7 +132,6 @@ for i = 1:5
 end
 title('Absorbance')
 xlabel('Thickness, nm')
-
 legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
 
 
