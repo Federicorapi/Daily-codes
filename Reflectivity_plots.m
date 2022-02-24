@@ -3,37 +3,139 @@ close all
 clc
 lambda = 700:100:1100;
 %% Gold
-k = [4.0624 4.9077 5.7227 6.4731 7.2433];
+%% Reflection
+n = ([0.131+1i*4.0624 0.15352+1i*4.9077 0.17435+1i*5.7227 0.22769+1i*6.4731 0.27750+1i*7.2433]);
 thickness = linspace(0,80);
-alpha = (4*pi./lambda).*k;
-
-figure(1)
-hold on
-for i = 1:size(k,2)
-reflection = 1-exp(-alpha(i).*thickness);
-plot(thickness, reflection)
-plot(thickness, 1-reflection,'--','handleVisibility','off')
-
+alpha = (2*pi./lambda);
+nair = 1;
+r_tot = zeros(size(n,2),100);
+for ii = 1:size(lambda,2)
+    for j = 1:100
+        r11 = (nair-n(ii))/(nair+n(ii));
+        r22 = (n(ii)-nair)/(nair+n(ii));
+        t12 = 2*nair/(n(ii)+nair);
+        t21 = 2*n(ii)/(n(ii)+nair);
+        syms m
+       % r_tot(ii,j) = r11+(t21*t21/r22)*symsum((r22^2*exp(2*1i*alpha(ii)*n(ii)*thickness(j) )   )^m,m,1,Inf);
+        loop=r22^2*exp(2*1i*alpha(ii)*n(ii)*thickness(j));
+        %r_tot(ii,j) = r11+(t21*t21/r22)*(1/(1-loop)-1);
+        r_tot(ii,j) = r11+(t12*t21*r22*exp(2*1i*alpha(ii)*n(ii)*thickness(j)))*1/(1-loop);
+        j
+    end
+   ii
 end
-xlabel('Gold thicknesss, nm')
-title('- -, Transmission. -- Reflection')
+
+R = abs(r_tot).^2;
+figure(1),
+for i = 1:5
+    plot(thickness,R(i,:))
+    hold on
+end
+title('Reflection')
 legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
+
+% Transmission
+t_tot = zeros(size(n,2),100);
+for ii = 1:size(lambda,2)
+    for j = 1:100
+        r11 = (nair-n(ii))/(nair+n(ii));
+        r22 = (-nair+n(ii))/(nair+n(ii));
+        t12 = 2*nair/(n(ii)+nair);
+        t21 = 2*n(ii)/(n(ii)+nair);
+        syms m
+        loop=r22^2*exp(2*1i*alpha(ii)*n(ii)*thickness(j));
+        %t_tot(ii,j) = t12*t21*exp(1i*alpha(ii)*n(ii)*thickness(j))*symsum((r22^2*exp(2*1i*alpha(ii)*n(ii)*thickness(j)))^m,m,0,Inf);
+        t_tot(ii,j) = t12*t21*exp(1i*alpha(ii)*n(ii)*thickness(j))*(1/(1-loop));
+        j
+    end
+   ii
+end
+T = abs(t_tot).^2;
+A =1-( abs(t_tot).^2+abs(r_tot).^2);
+figure(2),
+for i = 1:5
+    plot(thickness,T(i,:))
+    hold on
+end
+title('Transmission')
+legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
+
+
+figure(3),
+for i = 1:5
+    plot(thickness,A(i,:))
+    hold on
+end
+title('Absorbance')
+legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
+
 
 %% Silver
-k = [4.8025 5.5698 6.3711 7.1155 7.8918];
+n = [0.041000+1i*4.8025 0.036759+1i*5.5698 0.040000+1i*6.3711 0.040000+1i*7.1155  0.044688+1i*7.8918];
+%% Reflection
 thickness = linspace(0,80);
-alpha = (4*pi./lambda).*k;
-
-figure(2)
-hold on
-for i = 1:size(k,2)
-reflection = 1-exp(-alpha(i).*thickness);
-plot(thickness, reflection)
-plot(thickness, 1-reflection,'--','handleVisibility','off')
-
+alpha = (2*pi./lambda);
+nair = 1;
+r_tot = zeros(size(n,2),100);
+for ii = 1:size(lambda,2)
+    for j = 1:100
+        r11 = (nair-n(ii))/(nair+n(ii));
+        r22 = (n(ii)-nair)/(nair+n(ii));
+        t12 = 2*nair/(n(ii)+nair);
+        t21 = 2*n(ii)/(n(ii)+nair);
+        syms m
+       % r_tot(ii,j) = r11+(t21*t21/r22)*symsum((r22^2*exp(2*1i*alpha(ii)*n(ii)*thickness(j) )   )^m,m,1,Inf);
+        loop=r22^2*exp(2*1i*alpha(ii)*n(ii)*thickness(j));
+        %r_tot(ii,j) = r11+(t21*t21/r22)*(1/(1-loop)-1);
+        r_tot(ii,j) = r11+(t12*t21*r22*exp(2*1i*alpha(ii)*n(ii)*thickness(j)))*1/(1-loop);
+        j
+    end
+   ii
 end
-xlabel('Silver thicknesss, nm')
-title('- -, Transmission. -- Reflection')
+
+R = abs(r_tot).^2;
+figure(1),
+for i = 1:5
+    plot(thickness,R(i,:))
+    hold on
+end
+title('Reflection')
 legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
+
+% Transmission
+t_tot = zeros(size(n,2),100);
+for ii = 1:size(lambda,2)
+    for j = 1:100
+        r11 = (nair-n(ii))/(nair+n(ii));
+        r22 = (-nair+n(ii))/(nair+n(ii));
+        t12 = 2*nair/(n(ii)+nair);
+        t21 = 2*n(ii)/(n(ii)+nair);
+        syms m
+        loop=r22^2*exp(2*1i*alpha(ii)*n(ii)*thickness(j));
+        %t_tot(ii,j) = t12*t21*exp(1i*alpha(ii)*n(ii)*thickness(j))*symsum((r22^2*exp(2*1i*alpha(ii)*n(ii)*thickness(j)))^m,m,0,Inf);
+        t_tot(ii,j) = t12*t21*exp(1i*alpha(ii)*n(ii)*thickness(j))*(1/(1-loop));
+        j
+    end
+   ii
+end
+T = abs(t_tot).^2;
+A =1-( abs(t_tot).^2+abs(r_tot).^2);
+figure(2),
+for i = 1:5
+    plot(thickness,T(i,:))
+    hold on
+end
+title('Transmission')
+legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
+
+
+figure(3),
+for i = 1:5
+    plot(thickness,A(i,:))
+    hold on
+end
+title('Absorbance')
+legend('\lambda = 700','\lambda = 800','\lambda = 900','\lambda = 1000','\lambda = 1100')
+
 
 
