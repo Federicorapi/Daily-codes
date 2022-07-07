@@ -13,3 +13,5 @@ Thz folder contains the following scripts:
 * **plot_spectra.m** - Once the map is plotted, allows to select the pixel from which we want to plot the spectrum
 * **scan_h5.m** -  Show the scan obtained from the µPL manip
 * **polarization.m** - Plots polarisation measurements 
+* **gold_dispersion_relation.m** - Function to be used inside the script 'cav_metallique' to get the complex reflactive of gold at a given wavelength
+* **cav_metallique.m** - Computes the cavity resonance peaks of a metallic cavity
